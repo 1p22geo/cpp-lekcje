@@ -2,7 +2,9 @@
 
 using namespace std;
 
-
+class samochodzik{
+    
+};
 
 
 int main(int argc, char const *argv[])
