@@ -8,17 +8,19 @@ class Samochodzik
 {
 public:
     Samochodzik(string name, string color, float weight, string number);
-    string name;
     string color;
 
     void load(float weight);
     void unload(float weight);
+    string getName();
+    void setName(string name);
 
     float getWeight();
 
     string getNumber();
 
 private:
+    string name;
     float loadWeight;
     float weight; // domyślna waga to 1t
 protected:
@@ -57,6 +59,16 @@ void Samochodzik::unload(float weight)
     }
 }
 
+string Samochodzik::getName()
+{
+    return this->name;
+}
+
+void Samochodzik::setName(string name)
+{
+    this->name = name;
+}
+
 float Samochodzik::getWeight()
 {
     return this->weight + this->loadWeight;
@@ -75,6 +87,8 @@ int main(int argc, char const *argv[])
     multipla->load(12);  // ładujemy 12 kg
     multipla->unload(8); // wyciągamy 8 kg
     multipla->load(24);
+
+    cout <<multipla->getName()<<" koloru "<<multipla->color<<endl;
     
     cout << "Multipla wazy " << multipla->getWeight() << "kg" << endl; // polskie znaki nie wchodzą;
     cout << "Numer Multipli to: " << multipla->getNumber() << endl;
