@@ -2,6 +2,8 @@
 
 using namespace std;
 
+class samochodzik;
+
 class samochodzik{
     
 };
