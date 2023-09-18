@@ -82,14 +82,14 @@ string Samochodzik::getNumber()
 int main(int argc, char const *argv[])
 {
     cout << "Hello World" << endl;
-    Samochodzik *multipla = new Samochodzik("multipla", "czerwony", 1000, "VW-1234-PL-12.01.2020-23428BE42A09C");
-    
+    Samochodzik *multipla = new Samochodzik("Fiat Multipla", "sraczkowaty", 1000, "FIAT-1234-PL-12.01.2020-23428BE42A09C");
+
     multipla->load(12);  // ładujemy 12 kg
     multipla->unload(8); // wyciągamy 8 kg
     multipla->load(24);
 
-    cout <<multipla->getName()<<" koloru "<<multipla->color<<endl;
-    
+    cout << multipla->getName() << " koloru " << multipla->color << endl;
+
     cout << "Multipla wazy " << multipla->getWeight() << "kg" << endl; // polskie znaki nie wchodzą;
     cout << "Numer Multipli to: " << multipla->getNumber() << endl;
     return 0;
