@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": true,
-      "cwd": "d:/Users/2p_1/Desktop/helloworld",
-      "program": "d:/Users/2p_1/Desktop/helloworld/build/Debug/outDebug",
+      "cwd": "d:/Users/2p_1/Desktop/helloworld/obiektowe/02",
+      "program": "d:/Users/2p_1/Desktop/helloworld/obiektowe/02/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [
