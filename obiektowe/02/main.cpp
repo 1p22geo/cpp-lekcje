@@ -12,8 +12,8 @@ Ryba wczytajDaneRyby(){
     cout<<"Podaj wage ryby: ";
     cin>>waga;
 
-    Ryba *ryba = new Ryba(gatunek, rozmiar, waga);
-    return *ryba ;
+    Ryba okaz(gatunek, rozmiar, waga);
+    return okaz;
 }
 
 int main(int argc, char const *argv[]){
@@ -22,6 +22,10 @@ int main(int argc, char const *argv[]){
         ryby[i] = wczytajDaneRyby();
     }
     ;;;;;;;;;;;;;;;;;;;;;
+
+     for(int i=0; i<3; i++){
+        cout<<ryby[i].getGatunek()<<endl;
+     }
 
     return 0;
 }

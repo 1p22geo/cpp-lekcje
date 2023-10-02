@@ -30,3 +30,11 @@ string Ryba::toString(){
     napis += "\n\trozmiar ochronny: " + to_string(rozmOchr);
     return napis;
 }
+
+
+Ryba::~Ryba(){
+    cout<<"Ryba "<<gatunek<<" padla"<<endl;
+    delete &this->gatunek;
+    delete &this->rozmOchr;
+    delete &this->waga;
+}

@@ -1,6 +1,6 @@
 /*
  *   PLIK NAGŁÓWKOWY
- *   DEFINICJA KLASY Ryba()
+ *   DEKLARACJA KLASY Ryba()
  *
  * 
  */
@@ -18,6 +18,7 @@ class Ryba{
         Ryba(string gatunek, int rozmOchr, float waga);
         //Ryba(Ryba &ryba);
         Ryba();
+        ~Ryba();
 
         float getWaga();
         string getGatunek();
