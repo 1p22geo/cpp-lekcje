@@ -51,9 +51,11 @@ void Plik::zapisz(std::vector<Samohud> samohody)
 {
     if(this->otwarty){
         plik.close();
+        otwarty = false;
     }
     plik.open(nazwa, ios::out);
     if (plik.good()){
+        otwarty = true;
         for(auto samohud:samohody){
             plik <<samohud.getMarka()<<endl;
             plik <<samohud.getModel()<<endl;
