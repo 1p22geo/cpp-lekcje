@@ -52,3 +52,13 @@ int TKonto::wyplata(float kwota)
     this->saldo -= kwota;
     return 0;
 }
+
+int TKonto::przelew(TKonto *konto, float kwota)
+{
+    if(kwota<0){
+        return -1;
+    }
+    this->saldo -= kwota;
+    konto->saldo += kwota;
+    return 0;
+}

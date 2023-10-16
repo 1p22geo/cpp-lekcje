@@ -17,5 +17,12 @@ int main(int argv, char* argc[]){
     konto2.wplata(12.1);
     konto2.wyplata(0.52);
     cout<<konto2.toString();
+
+    cout << "===== Wykonuje przelew na 100 zl ====="<<endl;
+    konto2.przelew(&konto1, 100);
+
+    cout<<konto1.toString();
+    cout<<konto2.toString();
+
     return 0;
 }

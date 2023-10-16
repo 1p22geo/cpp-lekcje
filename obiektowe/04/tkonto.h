@@ -12,6 +12,7 @@ class TKonto{
         string toString();
         int wplata(float kwota);
         int wyplata(float kwota);
+        int przelew(TKonto *konto, float kwota);
     private:
         string numer;
         float saldo;
