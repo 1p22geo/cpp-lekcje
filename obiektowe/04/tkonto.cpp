@@ -11,9 +11,14 @@ string TKonto::getNumer()
     return numer;
 }
 
-void TKonto::setNumer(string n)
+int TKonto::setNumer(string n)
 {
+    if(n.length() != 32){
+        return -1;
+    }
+
     numer = n;
+    return 0;
 }
 
 string TKonto::toString()

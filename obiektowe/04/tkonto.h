@@ -8,7 +8,7 @@ class TKonto{
         TKonto();
         TKonto(string n, string num, float sld);
         string getNumer();
-        void setNumer(string n);
+        int setNumer(string n);
         string toString();
         int wplata(float kwota);
         int wyplata(float kwota);
