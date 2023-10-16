@@ -1,7 +1,15 @@
+#ifndef PLIKH
 #include "plik.h"
+#define PLIKH
+#endif
+#ifndef SAMOHUD
+#include "samohud.h"
+#define SAMOHUD
+#endif
+#include <iomanip>
 
-Plik::Plik(string n) : nazwa(n) { this->otwarty = false; }
 Plik::Plik() : nazwa("default") { this->otwarty = false; }
+Plik::Plik(string n) : nazwa(n) { this->otwarty = false; }
 
 void Plik::otworz()
 {
@@ -30,17 +38,19 @@ std::vector<Samohud> Plik::wczytaj()
         Kolor tmpKolor;
         if (kolor.at(0) == '#')
         {
+            cout << "Kolor hex "<<kolor<<endl;
             string hstr = kolor.substr(1, 6);
             int r, g, b;
             sscanf(hstr.c_str(), "%02x%02x%02x", &r, &g, &b);
-            Kolor tmpKolor(r, g, b);
+            cout <<'#'<< std::hex << std::setfill('0') <<std::setw(2) << r << g << b;
+            tmpKolor.setKolor(r,g,b);
         }
         else
         {
-            Kolor tmpKolor(kolor);
+            tmpKolor.setKolor(kolor);
         }
-
         Samohud autko(marka, model, pojemnosc, paliwo, tmpKolor);
+        cout<<autko.to_string();
         samochody.push_back(autko);
     }
 
@@ -64,4 +74,11 @@ void Plik::zapisz(std::vector<Samohud> samohody)
             plik <<samohud.getKolor().getKolor()<<endl;
         }
     }
+}
+
+string Plik::getNazwa(){
+    return this->nazwa;
+}
+void Plik::setNazwa(string n){
+    nazwa = n;
 }

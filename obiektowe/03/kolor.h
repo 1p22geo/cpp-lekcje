@@ -4,9 +4,11 @@ using namespace std;
 class Kolor{
     private:
         string nazwa;
-        int R,G,B;
         bool hex;
+        int R,G,B;
     public:
+        void setKolor(int r, int g, int b);
+        void setKolor(string n);
         Kolor(string nazwa);
         Kolor();
         Kolor(int r, int g, int b);

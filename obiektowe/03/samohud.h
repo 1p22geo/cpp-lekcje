@@ -1,7 +1,9 @@
 #include <iostream>
-#include "kolor.h"
 using namespace std;
-
+#ifndef KOLORH
+#include "kolor.h"
+#define KOLORH
+#endif
 
 
 

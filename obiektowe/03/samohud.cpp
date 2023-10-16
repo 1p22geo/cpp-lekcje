@@ -1,4 +1,11 @@
+#ifndef SAMOHUD
 #include "samohud.h"
+#define SAMOHUD
+#endif
+#ifndef KOLORH
+#include "kolor.h"
+#define KOLORH
+#endif
 #include <iomanip>
 #include <iostream>
 using namespace std;
