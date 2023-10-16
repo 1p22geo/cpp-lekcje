@@ -4,7 +4,11 @@
 #include <iostream>
 
 TKonto::TKonto() : nazwa("BRAK_DANYCH") , numer(string(32, '0')),saldo(0){}
-TKonto::TKonto(string n, string num, float sld):nazwa(n),numer(num),saldo(sld){}
+TKonto::TKonto(string n, string num, float sld):nazwa(n),numer(num),saldo(sld){
+    if(saldo<0){
+        saldo = 0;
+    }
+}
 
 string TKonto::getNumer()
 {
@@ -49,6 +53,9 @@ int TKonto::wyplata(float kwota)
     if(kwota<0){
         return -1;
     }
+    if(kwota>saldo){
+        return -2;
+    }
     this->saldo -= kwota;
     return 0;
 }
@@ -57,6 +64,9 @@ int TKonto::przelew(TKonto *konto, float kwota)
 {
     if(kwota<0){
         return -1;
+    }
+    if(kwota>saldo){
+        return -2;
     }
     this->saldo -= kwota;
     konto->saldo += kwota;
