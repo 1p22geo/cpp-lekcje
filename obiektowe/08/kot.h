@@ -1,4 +1,8 @@
+#pragma once
+
 #include "zwierze.h"
+
+class Pies;
 
 class Kot : public Zwierze {
     protected:
@@ -7,5 +11,5 @@ class Kot : public Zwierze {
         Kot();
         Kot(int _lata, string _nazwa);
         void przedstawSie();
-
+    friend void ktoStarszy(Kot, Pies);
 };
