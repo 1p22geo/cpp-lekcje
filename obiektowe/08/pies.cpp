@@ -2,7 +2,7 @@
 
 Pies::Pies()
 {
-    this->nazwa = "bezimienny kotek";
+    this->nazwa = "bezimienny piesek";
     this->rok_ur = 2023;
 }
 

@@ -8,7 +8,7 @@ using namespace std;
 
 int main(){
     Kot kotek(5, "Bob");
-    Pies piesek(2020, "paweu");
+    Pies piesek = *new Pies();
     kotek.przedstawSie();
     piesek.przedstawSie();
 
