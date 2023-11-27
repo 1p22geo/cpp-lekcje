@@ -15,5 +15,5 @@ int Taxi::getMiejsca()
 
 std::string Taxi::info()
 {
-    return std::string("taxi "+this->nazwa + ", " + std::to_string(this->rocznik));
+    return std::string("taxi "+this->nazwa + ", rocznik " + std::to_string(this->rocznik) + " z " + std::to_string(this->miejsca) + " siedzeniami");
 }

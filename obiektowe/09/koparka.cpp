@@ -17,5 +17,5 @@ float Koparka::getMoc()
 
 std::string Koparka::info()
 {
-    return std::string("koparka "+this->nazwa + ", " + std::to_string(this->rocznik));
+    return std::string("koparka "+this->nazwa + ", rocznik " + std::to_string(this->rocznik)+ ", moc " + std::to_string(this->moc) + " wat");
 }

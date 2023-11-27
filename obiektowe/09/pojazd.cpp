@@ -23,5 +23,5 @@ int Pojazd::getRocznik()
 
 std::string Pojazd::info()
 {
-    return std::string(this->nazwa + ", " + std::to_string(this->rocznik));
+    return std::string(this->nazwa + ", rocznik " + std::to_string(this->rocznik));
 }
