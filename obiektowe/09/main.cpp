@@ -9,11 +9,14 @@ using namespace std;
 int main(){
     Pojazd *pojazd;
     pojazd = new Pojazd("traktor", 1990);
-    
+    cout<<pojazd->getRocznik()<<endl;
+
+    /*
     Pojazd *tx;
     tx= new Taxi(12, "czerwona kaksufka", 2001);
     Pojazd *kp;
     kp= new Koparka(24.1, "kopara", 2011);
+    */
 
     Pojazd **parking = new Pojazd*[12];
 
