@@ -20,7 +20,7 @@ int main(){
     parking[0] = new Taxi(4, "taksufka", 2022);
     parking[1] = new Koparka(15.2, "agdasgdgas", 2000);
 
-    cout<<parking[1]->info();
+    cout<<parking[0]->info();
 
     return 0;
 }
