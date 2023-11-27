@@ -11,4 +11,5 @@ class Pojazd{
         Pojazd(std::string _nazwa, int _rocznik);
         std::string getNazwa();
         int getRocznik();
+        std::string info();
 };

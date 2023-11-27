@@ -7,6 +7,7 @@ class Koparka : public Pojazd {
         float moc;
     public:
         Koparka();
-        Koparka(float _moc);
+        Koparka(float _moc,  std::string nazwa, int rocznik);
         float getMoc();
+        std::string info();
 };

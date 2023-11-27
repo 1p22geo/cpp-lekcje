@@ -7,6 +7,7 @@ class Taxi : public Pojazd {
         int miejsca;
     public:
         Taxi();
-        Taxi(int _miejsc);
+        Taxi(int _miejsc, std::string nazwa, int rocznik);
         int getMiejsca();
+        std::string info();
 };
