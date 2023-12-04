@@ -11,6 +11,11 @@ main.o: main.cpp
 klasa.o: klasa.cpp klasa.h
 	$(CC) $(CFLAGS) klasa.cpp
 
+hello: hello.o
+	$(CC) hello.o -o hello
+
+hello.o: hello.asm
+	.\nasm.exe hello.asm -f win64 -o hello.o
 
 clean:
 	del *.o
