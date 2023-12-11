@@ -13,4 +13,5 @@ class Prostokat: public Figura{
         void obliczPole();
         void obliczObwod();
         std::string info();
+        static Prostokat* kwadrat(float _a, std::string _nazwa);
 };

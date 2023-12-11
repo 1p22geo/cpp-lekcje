@@ -21,3 +21,8 @@ std::string Prostokat::info()
 {
     return "prostokat o polu "+ std::to_string(this->pole)+" , obwodzie "+std::to_string(this->obwod)+" i nazwie \""+this->nazwa+"\"";
 }
+
+Prostokat *Prostokat::kwadrat(float _a, std::string _nazwa)
+{
+    return new Prostokat(_a, _a, _nazwa);
+}

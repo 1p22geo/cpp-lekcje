@@ -30,7 +30,7 @@ int main(){
     tab[0] = fig;
     fig = new Prostokat(12, 12, "dziwny kwadrat");
     tab[1] = fig;
-    fig = new Prostokat(15, 15, "inny kwadrat");
+    fig = Prostokat::kwadrat(15, "inny kwadrat");
     tab[2] = fig;
     fig = new TrojkatRownoboczny(240, "duzy trojkat");
     tab[3] = fig;
