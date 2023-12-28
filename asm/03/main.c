@@ -4,6 +4,7 @@
 #include "stuff.h"
 
 void stuff();
+int main();
 
 int main(int argc, char const *argv[], char const *envp[]){
   stuff();
