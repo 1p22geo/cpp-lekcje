@@ -4,7 +4,6 @@
 #include "stuff.h"
 
 void stuff();
-int main();
 
 int main(int argc, char const *argv[], char const *envp[]){
   stuff();
@@ -23,6 +22,6 @@ void stuff(){
   *(hello+9) = (char)0;
 
 
-  printf(hello);
+  printf("%s", hello);
   free(hello);
 }
