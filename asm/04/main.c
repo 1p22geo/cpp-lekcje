@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "list.h"
 
 int main(int argc, char const *argv[], char const *envp[])
@@ -28,5 +29,6 @@ int main(int argc, char const *argv[], char const *envp[])
     printf("%c\n", last);
   }
 
+  free(list);
   return 0;
 }
