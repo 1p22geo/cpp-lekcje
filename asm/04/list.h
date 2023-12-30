@@ -1,17 +1,20 @@
+#pragma once
+#include <stdint.h>
+
 
 struct Node {
-  char value;
+  uint8_t value;
   struct Node *next;
 };
 
 struct List {
   struct Node *head;
-  unsigned int len;
+  uint32_t len;
 };
 
 
-struct Node * create_node(char value);
+struct Node * create_node(uint8_t value);
 struct List * create_list();
-void list_push(struct List * list, char value);
-char list_pop(struct List *list);
-char list_get(struct List * list, unsigned int index);
+void list_push(struct List * list, uint8_t value);
+uint8_t list_pop(struct List *list);
+uint8_t list_get(struct List * list, uint32_t index);

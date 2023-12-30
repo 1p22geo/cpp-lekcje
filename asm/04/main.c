@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "list.h"
@@ -10,18 +11,18 @@ int main(int argc, char const *argv[], char const *envp[])
   list_push(list, 'b');
   list_push(list, 'c');
 
-  char x = list_get(list, 0);
+  uint8_t x = list_get(list, 0);
   printf("%c\n", x);
 
   list_push(list, 'd');
 
 
-  char y = list_get(list, 3);
+  uint8_t y = list_get(list, 3);
 
   printf("%c\n", y);
   printf("%u\n", list->len);
 
-  char last;
+  uint8_t last;
   printf("Taking down elements\n");
 
   while(list->len){
