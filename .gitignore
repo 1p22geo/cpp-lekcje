@@ -1,5 +1,7 @@
 *.exe
 *.zip
-
 .vscode
 *.o
+build
+
+
