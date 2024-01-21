@@ -1,5 +1,7 @@
 #pragma once
 #include <string>
+#include <iostream>
+#include <sstream>
 
 
 class Czas{

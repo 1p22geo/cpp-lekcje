@@ -4,7 +4,15 @@ Czas::Czas(unsigned long _minuty) : minuty(_minuty) {}
 
 Czas::Czas(unsigned long _godziny, unsigned long _minuty) : minuty(_minuty + _godziny * 60) {}
 
-std::string Czas::ToString() { return std::string(std::to_string(minuty / 60) + ":" + std::to_string(minuty % 60)); }
+std::string Czas::ToString()
+{
+    std::stringstream ss;
+    ss<<minuty/60;
+    ss<<":";
+    ss<<minuty%60;
+    
+    return std::string(ss.str());
+}
 
 Czas Czas::operator+(Czas &that)
 {
