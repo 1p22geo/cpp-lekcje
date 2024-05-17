@@ -3,19 +3,30 @@ LIBRARIES=-lmysockets
 CC=gcc
 CFLAGS=-c -Wall $(INCLUDES)
 LD=gcc
-LFLAGS=$(LIBRARIES)
 
 all: server client
 
+static: server.static client.static
 
 server: server.o
-	$(LD) $(LFLAGS) server.o -o server
+	$(LD) server.o -o server $(LIBRARIES)
+
+client: client.o
+	$(LD) client.o -o client $(LIBRARIES)
+
+server.static: server.o
+	$(LD) -static server.o -o server.static $(LIBRARIES)
+
+client.static: client.o
+	$(LD) -static client.o -o client.static $(LIBRARIES)
+
+
+clean:
+	rm *.o *.a *.so
+
 
 server.o: server.c
 	$(CC) $(CFLAGS)  server.c
-
-client: client.o
-	$(LD) $(LFLAGS) client.o -o client
 
 client.o: client.c
 	$(CC) $(CFLAGS) client.c

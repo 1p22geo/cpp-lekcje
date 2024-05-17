@@ -1,4 +1,7 @@
+# binaries
 server
 client
+# static binaries
+*.static
 
 

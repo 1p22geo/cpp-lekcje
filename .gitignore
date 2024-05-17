@@ -3,6 +3,7 @@
 .vscode
 *.o
 *.so
+*.a
 build
 
 
