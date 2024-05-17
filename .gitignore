@@ -2,6 +2,7 @@
 *.zip
 .vscode
 *.o
+*.so
 build
 
 

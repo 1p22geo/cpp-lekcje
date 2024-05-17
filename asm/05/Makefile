@@ -1,17 +1,21 @@
+INCLUDES=-I/usr/include/libmysockets/
+LIBRARIES=-lmysockets
 CC=gcc
-CFLAGS=-c -Wall
+CFLAGS=-c -Wall $(INCLUDES)
+LD=gcc
+LFLAGS=$(LIBRARIES)
 
 all: server client
 
+
 server: server.o
-	$(CC) server.o -o server
+	$(LD) $(LFLAGS) server.o -o server
 
-server.o: server.c server.h
-	$(CC) $(CFLAGS) server.c
-
+server.o: server.c
+	$(CC) $(CFLAGS)  server.c
 
 client: client.o
-	$(CC) client.o -o client
+	$(LD) $(LFLAGS) client.o -o client
 
-client.o: client.c client.h
+client.o: client.c
 	$(CC) $(CFLAGS) client.c
