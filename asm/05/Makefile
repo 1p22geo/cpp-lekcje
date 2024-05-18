@@ -22,7 +22,7 @@ client.static: client.o
 
 
 clean:
-	rm *.o *.a *.so
+	rm *.o *.a *.so server client server.static client.static
 
 
 server.o: server.c
