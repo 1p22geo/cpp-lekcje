@@ -1,0 +1,2 @@
+/usr/bin/ar qc liblib2.a CMakeFiles/lib2.dir/src/lib2/main.cpp.o CMakeFiles/lib2.dir/src/lib2/main.s.o
+/usr/bin/ranlib liblib2.a
