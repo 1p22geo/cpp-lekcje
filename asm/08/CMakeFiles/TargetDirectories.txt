@@ -1,5 +1,0 @@
-/home/bartoszg/Documents/code/cpp-lekcje/asm/08/CMakeFiles/lib1.dir
-/home/bartoszg/Documents/code/cpp-lekcje/asm/08/CMakeFiles/lib2.dir
-/home/bartoszg/Documents/code/cpp-lekcje/asm/08/CMakeFiles/main.dir
-/home/bartoszg/Documents/code/cpp-lekcje/asm/08/CMakeFiles/edit_cache.dir
-/home/bartoszg/Documents/code/cpp-lekcje/asm/08/CMakeFiles/rebuild_cache.dir
