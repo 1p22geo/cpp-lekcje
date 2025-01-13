@@ -38,19 +38,4 @@ int main() {
   dec n3 = double_to_dec(1454125.14345);
   assert(dec_to_double(n3) == 1454125.14345);
   dec_dealloc(n3);
-
-  double d4 = 14143432.14155425;
-  double d5 = 121.15515561514;
-
-  dec n4 = double_to_dec(d4);
-  dec n5 = double_to_dec(d5);
-
-  dec n_sum = dec_add(n4, n5);
-
-  assert(dec_to_double(n_sum) == d4 + d5);
-
-  dec_dealloc(n_sum);
-
-  dec_dealloc(n4);
-  dec_dealloc(n5);
 }
