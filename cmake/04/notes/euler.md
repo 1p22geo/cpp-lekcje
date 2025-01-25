@@ -14,4 +14,6 @@ $$
 ```
 
 We need to calculate $(n+1)^n$ and then $n^n$
-and then divide
+and then divide.
+
+Why is this so difficult.

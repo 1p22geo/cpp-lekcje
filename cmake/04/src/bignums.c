@@ -33,9 +33,10 @@ dec double_to_dec(double a) {
     a *= 256;
   }
 
-  b = a; // after scaling it up, convert to an int
+  b = fabs(a); // after scaling it up, convert to an uint
 
-  c = int_to_dec(a);
+  c = int_to_dec(b);
+  c.sign = a >= 0 ? POSITIVE : NEGATIVE;
   c.point = c.length - point;
 
   return c;
@@ -64,7 +65,6 @@ uint64_t dec_to_int(dec a) {
     b *= 256;
     b += a.digits[n];
   }
-
   return b;
 }
 
@@ -76,6 +76,10 @@ double dec_to_double(dec a) {
   }
 
   b /= pow(256, a.length - a.point);
+
+  if (a.sign == NEGATIVE)
+    b *= -1;
+
   return b;
 }
 

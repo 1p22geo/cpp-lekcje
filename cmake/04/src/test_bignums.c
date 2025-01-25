@@ -38,4 +38,8 @@ int main() {
   dec n3 = double_to_dec(1454125.14345);
   assert(dec_to_double(n3) == 1454125.14345);
   dec_dealloc(n3);
+
+  dec n4 = double_to_dec(-14152315415.33);
+  assert(dec_to_double(n4) == -14152315415.33);
+  dec_dealloc(n4);
 }

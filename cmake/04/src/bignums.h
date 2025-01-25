@@ -3,6 +3,11 @@
 #ifndef BIGNUMS_H
 #define BIGNUMS_H
 
+typedef enum {
+  POSITIVE,
+  NEGATIVE,
+} dec_sign;
+
 /*
 Base-256 decimal number.
 (decimal? 256-imal?)
@@ -11,10 +16,12 @@ Array of digits as bytes,
 position of decimal point from first byte,
 and length (number of bytes)
 */
+
 typedef struct {
   uint8_t *digits;
   uint64_t point;
   uint64_t length;
+  dec_sign sign;
 } dec;
 
 // mallocs memory on the heap.
