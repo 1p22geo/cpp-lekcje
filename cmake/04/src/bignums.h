@@ -53,4 +53,6 @@ dec dec_pow(dec a, dec b);
 // counts the base-256 digits of an int
 uint64_t count_digits(uint64_t num);
 
+int8_t dec_cmp(dec a, dec b);
+
 #endif // BIGNUMS_H

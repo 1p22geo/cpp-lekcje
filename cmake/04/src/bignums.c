@@ -2,6 +2,7 @@
 #include <math.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/types.h>
 
 uint64_t count_digits(uint64_t num) {
@@ -133,6 +134,92 @@ dec dec_add(dec a, dec b) {
     c.digits[i] = a_digit + b_digit + carry;
 
     carry = (a_digit + b_digit + (uint16_t)carry) / 256;
+  }
+
+  return c;
+}
+
+dec dec_sub(dec a, dec b) {
+  dec c;
+  uint64_t digits_bce;
+  uint64_t digits_ce;
+  uint64_t a_l_offset;
+  uint64_t b_l_offset;
+  uint64_t a_r_offset;
+  uint64_t b_r_offset;
+  int32_t borrow;
+  uint16_t a_digit;
+  uint16_t b_digit;
+
+  // Determine the number of digits before the decimal point
+  digits_bce = a.point > b.point ? a.point : b.point;
+  if (a.point == b.point &&
+      ((uint16_t)a.digits[0] - (uint16_t)b.digits[0] < 0)) {
+    // borrow on the first digit
+    digits_bce++;
+  }
+
+  // Determine the number of digits after the decimal point
+  digits_ce = a.length - a.point > b.length - b.point ? a.length - a.point
+                                                      : b.length - b.point;
+
+  // Calculate offsets for a and b
+  a_l_offset = digits_bce - a.point;
+  b_l_offset = digits_bce - b.point;
+  a_r_offset = (digits_ce - (a.length - a.point));
+  b_r_offset = (digits_ce - (b.length - b.point));
+
+  // Initialize result
+  c.length = digits_bce + digits_ce;
+  c.point = digits_bce;
+  c.digits = malloc(c.length);
+
+  // Initialize borrow
+  borrow = 0;
+
+  // Subtract digits after the decimal point
+  for (int i = 0; i < digits_ce; i++) {
+    a_digit =
+        ((a_r_offset <= i) ? (a.digits[a.length - i - 1 + a_r_offset]) : 0);
+    b_digit =
+        ((b_r_offset <= i) ? (b.digits[b.length - i - 1 + b_r_offset]) : 0);
+
+    c.digits[c.length - i - 1] = a_digit - b_digit - borrow;
+
+    if (a_digit - b_digit - borrow < 0) {
+      c.digits[c.length - i - 1] += 256;
+      borrow = 1;
+    } else {
+      borrow = 0;
+    }
+  }
+
+  // Subtract digits before the decimal point
+  for (int i = digits_bce - 1; i >= 0; i--) {
+    a_digit = ((a_l_offset <= i) ? (a.digits[i - a_l_offset]) : 0);
+    b_digit = ((b_l_offset <= i) ? (b.digits[i - b_l_offset]) : 0);
+
+    c.digits[i] = a_digit - b_digit - borrow;
+
+    if (a_digit - b_digit - borrow < 0) {
+      c.digits[i] += 256;
+      borrow = 1;
+    } else {
+      borrow = 0;
+    }
+  }
+
+  // Check if the result is negative
+  if (borrow == 1) {
+    c.sign = NEGATIVE;
+    // Add the absolute value of b to a
+    dec temp = dec_add(a, b);
+    free(c.digits);
+    c.digits = temp.digits;
+    c.length = temp.length;
+    c.point = temp.point;
+  } else {
+    c.sign = POSITIVE;
   }
 
   return c;
