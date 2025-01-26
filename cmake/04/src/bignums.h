@@ -6,6 +6,7 @@
 typedef enum {
   POSITIVE,
   NEGATIVE,
+  INVALID,
 } dec_sign;
 
 /*
@@ -54,5 +55,7 @@ dec dec_pow(dec a, dec b);
 uint64_t count_digits(uint64_t num);
 
 int8_t dec_cmp(dec a, dec b);
+
+#define dec_flip(c) c.sign = c.sign == NEGATIVE ? POSITIVE : NEGATIVE;
 
 #endif // BIGNUMS_H

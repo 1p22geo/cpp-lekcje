@@ -2,7 +2,6 @@
 #include <math.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <string.h>
 #include <sys/types.h>
 
 uint64_t count_digits(uint64_t num) {
@@ -84,7 +83,13 @@ double dec_to_double(dec a) {
   return b;
 }
 
-dec dec_add(dec a, dec b) {
+dec udec_add(dec a, dec b) {
+  if (a.sign == NEGATIVE || b.sign == NEGATIVE) {
+    dec c;
+    c.sign = INVALID;
+    return c;
+  }
+
   dec c;
   uint64_t digits_bce;
   uint64_t digits_ce;
@@ -139,7 +144,13 @@ dec dec_add(dec a, dec b) {
   return c;
 }
 
-dec dec_sub(dec a, dec b) {
+dec udec_sub(dec a, dec b) {
+  if (a.sign == NEGATIVE || b.sign == NEGATIVE) {
+    dec c;
+    c.sign = INVALID;
+    return c;
+  }
+
   dec c;
   uint64_t digits_bce;
   uint64_t digits_ce;
@@ -223,6 +234,38 @@ dec dec_sub(dec a, dec b) {
   }
 
   return c;
+}
+
+dec dec_add(dec a, dec b) {
+  if (a.sign == POSITIVE && b.sign == POSITIVE) {
+    return udec_add(a, b);
+  }
+  if (a.sign == POSITIVE && b.sign == NEGATIVE) {
+    b.sign = POSITIVE;
+    return udec_sub(a, b);
+  }
+  if (a.sign == NEGATIVE && b.sign == POSITIVE) {
+    a.sign = POSITIVE;
+    dec c = udec_sub(a, b);
+    dec_flip(c);
+    return c;
+  }
+  if (a.sign == NEGATIVE && b.sign == NEGATIVE) {
+    a.sign = POSITIVE;
+    b.sign = POSITIVE;
+    dec c = udec_add(a, b);
+    dec_flip(c);
+    return c;
+  }
+  dec c;
+  c.sign = INVALID;
+  return c;
+}
+
+dec dec_sub(dec a, dec b) {
+  dec_flip(b);
+
+  return dec_add(a, b);
 }
 
 void dec_dealloc(dec number) { free(number.digits); }

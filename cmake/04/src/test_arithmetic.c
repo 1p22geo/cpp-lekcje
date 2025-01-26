@@ -4,7 +4,7 @@
 #include <stddef.h>
 
 int main() {
-  double double_a_1 = 14143432.14155425;
+  double double_a_1 = -14143432.14155425;
   double double_b_1 = 121.15515561514;
 
   dec dec_a_1 = double_to_dec(double_a_1);
