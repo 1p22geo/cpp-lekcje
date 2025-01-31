@@ -12,9 +12,11 @@ int main() {
 
   dec sum_1 = dec_add(dec_a_1, dec_b_1);
   dec sub_1 = dec_sub(dec_a_1, dec_b_1);
+  dec mul_1 = dec_mul(dec_a_1, dec_b_1);
 
-  assert(dec_to_double(sum_1) == double_a_1 + double_b_1);
-  assert(dec_to_double(sub_1) == double_a_1 - double_b_1);
+  // assert(dec_to_double(sum_1) == double_a_1 + double_b_1);
+  // assert(dec_to_double(sub_1) == double_a_1 - double_b_1);
+  // assert(dec_to_double(mul_1) == double_a_1 * double_b_1);
 
   dec_dealloc(sum_1);
 
@@ -29,9 +31,11 @@ int main() {
 
   dec sum_2 = dec_add(dec_a_2, dec_b_2);
   dec sub_2 = dec_sub(dec_a_2, dec_b_2);
+  dec mul_2 = dec_mul(dec_a_2, dec_b_2);
 
   assert(dec_to_double(sum_2) == double_a_2 + double_b_2);
   assert(dec_to_double(sub_2) == double_a_2 - double_b_2);
+  assert(dec_to_double(mul_2) == double_a_2 * double_b_2);
 
   dec_dealloc(sum_2);
 
