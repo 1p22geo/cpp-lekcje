@@ -5,5 +5,6 @@
 *.so
 *.a
 build
+main
 
 
