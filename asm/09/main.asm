@@ -63,6 +63,9 @@ _start:
   mov esi, r15d
   call x11_map_window
 
+  mov rdi, [socket_fd]
+  call set_fd_non_blocking
+
   pop rbp
 
 _loop:
@@ -92,6 +95,33 @@ static x11_next_id:function
   pop rbp
   ret
 
+set_fd_non_blocking:
+  push rbp
+  mov rbp, rsp
+
+  mov rax, 72
+  mov rdi, rdi
+  mov rsi, 3
+  mov rdx, 0
+  syscall
+
+  cmp rax, 0
+  jl kys
+
+  mov rdx, rax
+  or rdx, 0x800
+
+  mov rax, 72
+  mov rdi, rdi
+  mov rsi, 4
+  mov rdx, rdx
+  syscall
+
+  cmp rax, 0
+  jl kys
+
+  pop rbp
+  ret
 
 ; @param rdi X11 socket FD
 ; @param esi font ID
