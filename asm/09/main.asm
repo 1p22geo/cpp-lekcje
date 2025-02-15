@@ -6,11 +6,12 @@ default rel;
 %define X11_OP_REQ_CREATE_GC 0x37
 %define X11_OP_REQ_CREATE_WINDOW 0x01
 %define X11_OP_REQ_MAP_WINDOW 0x08
+%define X11_OP_REQ_IMAGE_TEXT8 0x4c
 
 section .data
   socket_path db "/tmp/.X11-unix/X0", 0x00
   socket_path_len equ $-socket_path
-  xauthority_path db "/run/user/1000/xauth_tsRuvY", 0x00
+  xauthority_path db "/run/user/1000/xauth_UQNcSk", 0x00
   xauthority_path_len equ $-xauthority_path
 
   xauth_method db "MIT-MAGIC-COOKIE-1"
@@ -22,6 +23,9 @@ section .data
   root_visual_id dd 0
   
   socket_fd dq 0
+
+  hello_world db "Hello world", 0x00
+  hello_world_len equ $-hello_world
 
 section .text
 global _start
@@ -66,6 +70,11 @@ _start:
   mov rdi, [socket_fd]
   call set_fd_non_blocking
 
+  mov rdi, [socket_fd]
+  mov esi, r15d
+  mov edx, r13d
+  call poll_messages
+
   pop rbp
 
 _loop:
@@ -74,6 +83,107 @@ _loop:
   mov rax, 60
   mov rdi, 0
   syscall
+
+; @return al - message code
+; @param rdi - X11 socket FD
+x11_read_reply:
+static x11_read_reply:function
+  push rbp
+  mov rbp, rsp
+
+  sub rsp, 32
+
+  mov rax, 0
+  mov rdi, rdi
+  lea rsi, [rsp]
+  mov rdx, 32
+  syscall
+
+  cmp rax, 1
+  jle kys
+
+  mov byte al, [rsp]
+
+  add rsp, 32
+
+  pop rbp
+  ret
+
+
+; infinite poll messages with poll(2)
+; @param rdi - x11 socket FD
+; @param esi - window id
+; @param edx - graphical context id
+poll_messages:
+static poll_messages:function
+  push rbp
+  mov rbp, rsp
+
+  sub rsp, 32
+
+  %define POLLIN 0x001
+  %define POLLPRI 0x002
+  %define POLLOUT 0x004
+  %define POLLERR  0x008
+  %define POLLHUP  0x010
+  %define POLLNVAL 0x020
+
+  mov dword [rsp + 0*4], edi
+  mov dword [rsp + 1*4], POLLIN
+
+  mov dword [rsp + 4*4], esi ; window id
+  mov dword [rsp + 5*4], edx ; graphical context id
+
+  .loop:
+  ; main loop
+  mov rax, 7
+  lea rdi, [rsp]
+  mov rsi, 1
+  mov rdx, -1
+  syscall
+
+  cmp rax, 0
+  jle kys
+
+  cmp dword [rsp + 2*4], POLLERR
+  je kys
+
+  cmp dword [rsp + 2*4], POLLHUP
+  je kys
+
+  mov rdi, [rsp]
+  mov rax, 0x00000000ffffffff
+  and qword rdi, rax
+  call x11_read_reply
+
+  %define X11_EVENT_EXPOSURE 0xc
+  cmp eax, X11_EVENT_EXPOSURE
+  jne .not_exposure
+
+  mov BYTE [rsp + 24], 1 
+
+  .not_exposure:
+
+  cmp BYTE [rsp + 24], 1
+  jne .loop
+
+    mov rdi, [rsp + 0*4] ; socket fd
+    lea rsi, [hello_world] 
+    mov edx, hello_world_len
+    mov ecx, [rsp + 16] ; window id
+    mov r8d, [rsp + 20] ; gc id
+    mov r9d, 100 ; x
+    shl r9d, 16
+    or r9d, 100 ; y
+    call x11_draw_text
+
+
+  jmp .loop
+
+  add rsp, 32
+  
+  pop rbp
+  ret
 
 
 ; @return the new id
@@ -152,12 +262,78 @@ set_fd_non_blocking:
    syscall
  
    cmp rax, OPEN_FONT_PACKET_U32_COUNT*4
-   jnz kys
+   jne kys
  
    add rsp, 6*8
  
    pop rbp
    ret
+
+; draw server-side rendered text
+; @param rdi X11 socket FD
+; @param rsi text string.
+; @param edx text string length in bytes.
+; @param ecx window id.
+; @param r8d graphical context id.
+; @param r9d packed x and y.
+x11_draw_text:
+static x11_draw_text:function
+  push rbp
+  mov rbp, rsp
+
+  sub edx, 1
+
+  sub rsp, 1024
+
+  mov DWORD [rsp + 1*4], ecx
+  mov DWORD [rsp + 2*4], r8d
+  mov DWORD [rsp + 3*4], r9d
+
+  ; back up those values
+  mov r8d, edx 
+  mov r15, rdi 
+
+  mov eax, edx 
+  mov ecx, 4 
+  cdq 
+  idiv ecx 
+  neg edx
+  and edx, 3
+  mov r9d, edx ; store padding in r9
+
+  mov eax, r8d 
+  add eax, r9d
+  shr eax, 2 ; divide by 4 by spinning around some bits
+  add eax, 4 ; dword count of the packet
+
+  mov DWORD [rsp + 0*4], r8d
+  shl DWORD [rsp + 0*4], 8
+  or DWORD [rsp + 0*4], X11_OP_REQ_IMAGE_TEXT8
+  mov ecx, eax
+  shl ecx, 16
+  or [rsp + 0*4], ecx
+
+  ; memcpy the text string
+  mov rsi, rsi
+  lea rdi, [rsp + 4*4] 
+  cld 
+  mov ecx, r8d 
+  rep movsb
+
+  mov rdx, rax ; packet length
+  imul rdx, 4
+  mov rax, 1
+  mov rdi, r15
+  lea rsi, [rsp]
+  syscall
+
+  cmp rax, rdx
+  jne kys
+
+  add rsp, 1024
+ 
+  pop rbp
+  ret
 
 ; Create an X11 graphical context
 ; @param rdi X11 socket FD
@@ -179,7 +355,7 @@ static x11_create_gc:function
   
   %define CREATE_GC_PACKET_FLAG_COUNT 3
   %define CREATE_GC_PACKET_U32_COUNT (4 + CREATE_GC_PACKET_FLAG_COUNT)
-  %define MY_COLOR_RGB 0x00ffffff
+  %define MY_COLOR_RGB 0x0000ff00
  
   mov DWORD [rsp + 0*4], X11_OP_REQ_CREATE_GC | (CREATE_GC_PACKET_U32_COUNT<<16)
   mov DWORD [rsp + 1*4], esi
@@ -196,7 +372,7 @@ static x11_create_gc:function
   syscall
 
   cmp rax, CREATE_GC_PACKET_U32_COUNT*4
-  jnz kys
+  jne kys
   
   add rsp, 8*8
 
@@ -246,7 +422,7 @@ static x11_create_gc:function
    syscall
  
    cmp rax, CREATE_WINDOW_PACKET_U32_COUNT*4
-   jnz kys
+   jne kys
  
    add rsp, 12*8
  
@@ -273,7 +449,7 @@ static x11_create_gc:function
    syscall
  
    cmp rax, 2*4
-   jnz kys
+   jne kys
  
    add rsp, 16
  
