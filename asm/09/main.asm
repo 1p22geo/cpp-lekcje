@@ -11,7 +11,7 @@ default rel;
 section .data
   socket_path db "/tmp/.X11-unix/X0", 0x00
   socket_path_len equ $-socket_path
-  xauthority_path db "/run/user/1000/xauth_UQNcSk", 0x00
+  xauthority_path db "/run/user/1000/xauth_JPKcYN", 0x00
   xauthority_path_len equ $-xauthority_path
 
   xauth_method db "MIT-MAGIC-COOKIE-1"
@@ -27,11 +27,19 @@ section .data
   hello_world db "Hello world", 0x00
   hello_world_len equ $-hello_world
 
+section .bss
+  cells resb 100
+  ; each byte is a bitfield:
+  ; 0  0           0           0          0            0  0  0
+  ; [unused bits]  [flagged]   [opened]   [mine here]  [mines around (0-8)]
+
 section .text
 global _start
 _start:
   push rbp
   mov rbp, rsp
+
+  call setup_field
 
   call connect_to_x11
   mov r12d, eax ; root window id
@@ -230,6 +238,37 @@ set_fd_non_blocking:
   cmp rax, 0
   jl kys
 
+  pop rbp
+  ret
+
+; setup the minefield  
+setup_field:
+  push rbp
+  push r8
+  mov rbp, rsp
+
+  sub rsp, 8
+
+  mov rax, 318
+  mov rdi, rsp
+  mov rsi, 8
+  mov rdx, 0
+  syscall
+
+  mov qword rax, [rsp]
+  mov r8, 0x0fffffffffffffff
+  and qword rax, r8
+
+  mov rcx, 10
+
+  cqo
+  idiv rcx
+  and qword rdx, r8 ; get the remainder and make it positive
+
+
+  add rsp, 8
+
+  pop r8
   pop rbp
   ret
 
