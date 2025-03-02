@@ -8,6 +8,12 @@ default rel;
 %define X11_OP_REQ_MAP_WINDOW 0x08
 %define X11_OP_REQ_IMAGE_TEXT8 0x4c
 
+; X11 event codes
+%define X11_EVENT_EXPOSURE 0xc
+%define X11_EVENT_BUTTON_PRESS 0x4
+
+
+
 section .data
   socket_path db "/tmp/.X11-unix/X0", 0x00
   socket_path_len equ $-socket_path
@@ -93,26 +99,24 @@ _start:
   syscall
 
 ; @return al - message code
+; @param rsi - where to write the full 32 bytes
 ; @param rdi - X11 socket FD
 x11_read_reply:
 static x11_read_reply:function
   push rbp
   mov rbp, rsp
 
-  sub rsp, 32
 
   mov rax, 0
   mov rdi, rdi
-  lea rsi, [rsp]
   mov rdx, 32
   syscall
 
   cmp rax, 1
   jle kys
 
-  mov byte al, [rsp]
+  mov byte al, [rsi]
 
-  add rsp, 32
 
   pop rbp
   ret
@@ -162,15 +166,40 @@ static poll_messages:function
   mov rdi, [rsp]
   mov rax, 0x00000000ffffffff
   and qword rdi, rax
+
+  sub rsp, 32
+  mov rsi, rsp
   call x11_read_reply
 
-  %define X11_EVENT_EXPOSURE 0xc
   cmp eax, X11_EVENT_EXPOSURE
   jne .not_exposure
 
-  mov BYTE [rsp + 24], 1 
+  mov BYTE [rsp + 24 + 32], 1 
 
   .not_exposure:
+
+  cmp eax, X11_EVENT_BUTTON_PRESS
+  jne .not_bpress
+
+  .button_pressed_jump_here:
+
+  mov word r8w, [rsp+24]
+  mov word r9w, [rsp+26]
+  ; corrdinates of click
+
+  push rdi
+
+  mov rax, 1
+  mov rdi, 1
+  lea rsi, [hello_world]
+  mov rdx, hello_world_len
+  syscall
+
+  pop rdi
+
+  .not_bpress:
+
+  add rsp, 32
 
   cmp BYTE [rsp + 24], 1
   jne .loop
@@ -814,6 +843,7 @@ static x11_create_gc:function
  
    %define X11_FLAG_WIN_BG_COLOR 0x00000002
    %define X11_EVENT_FLAG_KEY_RELEASE 0x0002
+   %define X11_EVENT_FLAG_BUTTON_PRESS 0x0004
    %define X11_EVENT_FLAG_EXPOSURE 0x8000
    %define X11_FLAG_WIN_EVENT 0x00000800
    
@@ -833,7 +863,7 @@ static x11_create_gc:function
    mov DWORD [rsp + 6*4], ecx
    mov DWORD [rsp + 7*4], X11_FLAG_WIN_BG_COLOR | X11_FLAG_WIN_EVENT
    mov DWORD [rsp + 8*4], 0
-   mov DWORD [rsp + 9*4], X11_EVENT_FLAG_KEY_RELEASE | X11_EVENT_FLAG_EXPOSURE
+   mov DWORD [rsp + 9*4], X11_EVENT_FLAG_KEY_RELEASE | X11_EVENT_FLAG_BUTTON_PRESS | X11_EVENT_FLAG_EXPOSURE
  
  
    mov rax, 1
