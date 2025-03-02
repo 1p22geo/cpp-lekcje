@@ -187,6 +187,39 @@ static poll_messages:function
   mov word r9w, [rsp+26]
   ; corrdinates of click
 
+  sub r8w, 200
+  cmp r8w, 0
+  jl .not_bpress
+  cmp r8w, 200
+  jg .not_bpress
+
+  sub r9w, 180  ; Don't ask me. I also don't know.
+  cmp r9w, 0    ; For some reason Y of displayed text
+  jl .not_bpress; has decided to shift from 200 to 180.
+  cmp r9w, 200
+  jg .not_bpress; I fucking hate assembly.
+
+  mov ax, r8w
+  mov rdx, 0
+  mov bx, 20
+  idiv word bx
+  mov r8w, ax
+
+  mov ax, r9w
+  mov rdx, 0
+  mov bx, 20
+  idiv word bx
+  mov r9w, ax
+
+  imul r9, 10
+  add r9, r8
+
+  lea rbx, [cells]
+  add rbx, r9
+
+  ; temporary: set mine wherever clicked
+  or byte [rbx], 0b00001000
+
   push rdi
 
   mov rax, 1
@@ -260,8 +293,7 @@ static poll_messages:function
   mov byte [rsp], r11b
   jmp .next
 
-
-  .next:
+    .next:
     mov rdi, [rsp + 0*4 + 1] ; socket fd
     lea rsi, [rsp] 
     mov edx, 2
