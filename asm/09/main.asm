@@ -24,7 +24,7 @@ section .data
   
   socket_fd dq 0
 
-  hello_world db "Hello world", 0x00
+  hello_world db "hadziajski minesweeper", 0x00
   hello_world_len equ $-hello_world
 
 section .bss
@@ -85,8 +85,8 @@ _start:
 
   pop rbp
 
-_loop:
-  jmp _loop
+  .loop:
+  jmp .loop
 
   mov rax, 60
   mov rdi, 0
@@ -184,6 +184,78 @@ static poll_messages:function
     shl r9d, 16
     or r9d, 100 ; y
     call x11_draw_text
+
+  mov r10, 0x0000000000000000
+
+  .loop_squares:
+
+  ; draw mines
+
+  mov rax, r10
+  cdq
+  mov rsi, 10
+  idiv rsi
+
+  mov rbx, rdx
+
+  mov r8, rax
+  imul r8, 10
+  add r8, rdx
+  
+  lea r9, [cells]
+  add r9, r8
+
+  mov byte r8b, [r9]
+
+  sub rsp, 1
+
+  mov r11b, r8b
+  and r11b, 0b00001000
+  cmp r11b, 0
+  jne .mine
+
+  mov r11b, r8b
+  and r11b, 0b00000111
+  cmp r11b, 0
+  jne .digit
+
+  mov byte [rsp], '.'
+  jmp .next
+
+  .mine:
+  mov byte [rsp], 'X'
+  jmp .next
+
+  .digit:
+  add r11b, 0x30
+  mov byte [rsp], r11b
+  jmp .next
+
+
+  .next:
+    mov rdi, [rsp + 0*4 + 1] ; socket fd
+    lea rsi, [rsp] 
+    mov edx, 2
+    mov ecx, [rsp + 16 + 1] ; window id
+    mov r8d, [rsp + 20 + 1] ; gc id
+
+    mov r9d, eax
+    imul r9d, 20
+    add r9d, 200
+
+    shl r9d, 16
+
+  imul ebx, 20
+  add ebx, 200
+
+    or r9d, ebx
+    call x11_draw_text
+
+  add rsp, 1
+
+  add r10, 1
+  cmp r10, 100
+  jl .loop_squares
 
 
   jmp .loop
@@ -512,7 +584,7 @@ setup_field:
   lea rsi, [cells]
   add rsi, rax
 
-  and byte bl, 0b00001000
+  and byte bl, 0b00000111
   or byte [rsi], bl
 
   add rcx, 1
