@@ -11,7 +11,7 @@ default rel;
 section .data
   socket_path db "/tmp/.X11-unix/X0", 0x00
   socket_path_len equ $-socket_path
-  xauthority_path db "/run/user/1000/xauth_JPKcYN", 0x00
+  xauthority_path db "/run/user/1000/xauth_RlAcgr", 0x00 ; correct path to your need
   xauthority_path_len equ $-xauthority_path
 
   xauth_method db "MIT-MAGIC-COOKIE-1"
@@ -244,9 +244,52 @@ set_fd_non_blocking:
 ; setup the minefield  
 setup_field:
   push rbp
-  push r8
   mov rbp, rsp
 
+  sub rsp, 16
+
+  mov rcx, 10
+
+  .loop:
+  mov rdi, 10
+  call random_mod
+  mov qword [rsp], rax
+
+  mov rdi, 10
+  call random_mod
+  mov qword [rsp+8], rax
+
+  ; cells is a 2dimentional array
+  mov rax, [rsp]
+  imul rax, 10
+  add rax, [rsp+8]
+
+  lea rdx, [cells]
+  add rdx, rax
+
+  mov byte al, [rdx]
+
+  and al, 0b00001000 ; not gonna do it with shl's
+  cmp al, 0
+  jne .loop
+
+  or byte [rdx], 0b00001000
+
+  sub rcx, 1
+
+  cmp rcx, 0
+  jg .loop
+  
+  add rsp, 16
+
+  pop rbp
+  ret
+
+
+  ; @returns: random 64 bits in RAX
+random64:
+  push rbp
+  mov rbp, rsp
   sub rsp, 8
 
   mov rax, 318
@@ -256,21 +299,49 @@ setup_field:
   syscall
 
   mov qword rax, [rsp]
+
+  add rsp, 8
+  pop rbp
+  ret
+
+
+; random number from 1 to rdi
+; @returns: unsigned int in RAX
+random_mod:
+  push rbp
+  push r8
+  push rcx
+  mov rbp, rsp
+
+  mov rcx, rdi
+
+  sub rsp, 8
+
+  mov r12, rcx
+  mov rax, 318
+  mov rdi, rsp
+  mov rsi, 8
+  mov rdx, 0
+  syscall
+  mov rcx, r12
+
+  mov qword rax, [rsp]
   mov r8, 0x0fffffffffffffff
   and qword rax, r8
-
-  mov rcx, 10
 
   cqo
   idiv rcx
   and qword rdx, r8 ; get the remainder and make it positive
 
+  mov rax, rdx
 
   add rsp, 8
 
+  pop rcx
   pop r8
   pop rbp
   ret
+
 
 ; @param rdi X11 socket FD
 ; @param esi font ID
