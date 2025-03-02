@@ -244,12 +244,15 @@ set_fd_non_blocking:
 ; setup the minefield  
 setup_field:
   push rbp
+  push rbx
   mov rbp, rsp
 
-  sub rsp, 16
 
   mov rcx, 10
 
+  sub rsp, 16
+
+  ; set mines on the minefield
   .loop:
   mov rdi, 10
   call random_mod
@@ -279,9 +282,62 @@ setup_field:
 
   cmp rcx, 0
   jg .loop
-  
+
   add rsp, 16
 
+  mov rcx, 0
+
+  ; set up the neighboring mine count
+  .loop2:
+
+  mov rax, rcx
+  
+
+  add rcx, 1
+  cmp rcx, 100
+  jl .loop2
+
+  mov rax, rcx
+  cqo
+  mov rsi, 10
+  idiv rsi
+
+  ; rax - first digit
+  ; rdx - second digit
+
+  mov rbx, 0
+
+  .case1:
+  mov r11, rax
+  mov r12, rdx
+
+  sub r11, 1
+  sub r12, 1
+
+  cmp r11, 0
+  jl .case2
+
+  cmp r12, 0
+  jl .case2
+
+  imul r11, 10
+  add r11, r12
+
+  lea rsi, [cells]
+  add rsi, r11
+
+  mov byte r12b, [rsi]
+  and r12b, 0b00001000
+
+  cmp r12b, 0
+  je .case2
+
+  add rbx, 1
+
+  .case2:
+
+
+  pop rbx
   pop rbp
   ret
 
