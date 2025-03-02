@@ -292,11 +292,6 @@ setup_field:
 
   mov rax, rcx
   
-
-  add rcx, 1
-  cmp rcx, 100
-  jl .loop2
-
   mov rax, rcx
   cqo
   mov rsi, 10
@@ -335,6 +330,194 @@ setup_field:
   add rbx, 1
 
   .case2:
+  mov r11, rax
+  mov r12, rdx
+
+  sub r11, 1
+
+  cmp r11, 0
+  jl .case3
+
+  imul r11, 10
+  add r11, r12
+
+  lea rsi, [cells]
+  add rsi, r11
+
+  mov byte r12b, [rsi]
+  and r12b, 0b00001000
+
+  cmp r12b, 0
+  je .case3
+
+  add rbx, 1
+
+  .case3:
+  mov r11, rax
+  mov r12, rdx
+
+  sub r11, 1
+  add r12, 1
+
+  cmp r11, 0
+  jl .case4
+
+  cmp r12, 10
+  jg .case4
+
+  imul r11, 10
+  add r11, r12
+
+  lea rsi, [cells]
+  add rsi, r11
+
+  mov byte r12b, [rsi]
+  and r12b, 0b00001000
+
+  cmp r12b, 0
+  je .case4
+
+  add rbx, 1
+
+  .case4:
+  mov r11, rax
+  mov r12, rdx
+
+  add r12, 1
+
+  cmp r12, 10
+  jg .case5
+
+  imul r11, 10
+  add r11, r12
+
+  lea rsi, [cells]
+  add rsi, r11
+
+  mov byte r12b, [rsi]
+  and r12b, 0b00001000
+
+  cmp r12b, 0
+  je .case5
+
+  add rbx, 1
+
+  .case5:
+  mov r11, rax
+  mov r12, rdx
+
+  add r11, 1
+  add r12, 1
+
+  cmp r11, 10
+  jg .case6
+
+  cmp r12, 10
+  jg .case6
+
+  imul r11, 10
+  add r11, r12
+
+  lea rsi, [cells]
+  add rsi, r11
+
+  mov byte r12b, [rsi]
+  and r12b, 0b00001000
+
+  cmp r12b, 0
+  je .case6
+
+  add rbx, 1
+
+  .case6:
+  mov r11, rax
+  mov r12, rdx
+
+  add r11, 1
+
+  cmp r11, 10
+  jg .case7
+
+  imul r11, 10
+  add r11, r12
+
+  lea rsi, [cells]
+  add rsi, r11
+
+  mov byte r12b, [rsi]
+  and r12b, 0b00001000
+
+  cmp r12b, 0
+  je .case7
+
+  add rbx, 1
+
+  .case7:
+  mov r11, rax
+  mov r12, rdx
+
+  add r11, 1
+  sub r12, 1
+
+  cmp r11, 10
+  jg .case8
+
+  cmp r12, 0
+  jl .case8
+
+  imul r11, 10
+  add r11, r12
+
+  lea rsi, [cells]
+  add rsi, r11
+
+  mov byte r12b, [rsi]
+  and r12b, 0b00001000
+
+  cmp r12b, 0
+  je .case8
+
+  add rbx, 1
+
+  .case8:
+  mov r11, rax
+  mov r12, rdx
+
+  sub r12, 1
+
+  cmp r12, 0
+  jl .case9
+
+  imul r11, 10
+  add r11, r12
+
+  lea rsi, [cells]
+  add rsi, r11
+
+  mov byte r12b, [rsi]
+  and r12b, 0b00001000
+
+  cmp r12b, 0
+  je .case9
+
+  add rbx, 1
+
+  .case9:
+  ; Code quality? Where we're going we don't need code quality!
+
+
+  imul rax, 10
+  add rax, rdx
+
+  lea rsi, [cells]
+  add rsi, rax
+
+  and byte bl, 0b00001000
+  or byte [rsi], bl
+
+  add rcx, 1
+  cmp rcx, 100
+  jl .loop2
 
 
   pop rbx
