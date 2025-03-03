@@ -262,11 +262,25 @@ static poll_messages:function
   cmp r10b, 0
   jne .kill
 
+  mov byte r10b, [rbx]
+  and r10b, 0b00000111
+  cmp r10b, 0
+  je .collapse
+
   jmp .after_mousebutton
 
   .kill:
   ; left clicked on a mine >:3
   mov byte [kaputt], 1
+
+  jmp .after_mousebutton
+
+  .collapse:
+  ; the zero neighbor fields have to be collapsed
+  and byte [rbx], 0b11101111 ; set the tile as not opened yet
+  mov rdi, r9
+  call zero_collapse
+  or byte [rbx], 0b00010000
 
   jmp .after_mousebutton
 
@@ -334,11 +348,6 @@ static poll_messages:function
   shl r9d, 16
   or r9d, 150 ; y
   call x11_draw_text
-
-
-
-
-
 
   mov r10, 0x0000000000000000
 
@@ -497,6 +506,275 @@ set_fd_non_blocking:
   cmp rax, 0
   jl kys
 
+  pop rbp
+  ret
+
+
+; collapse zero neighbor tiles
+; @param rdi - 10 * x + y (board coordinates 0 to 9)
+zero_collapse:
+  push rbp
+  push rbx
+  mov rbp, rsp
+
+  mov rax, rdi 
+  cqo
+  mov rbx, 10
+  idiv rbx
+
+  lea rsi, [cells]
+  add rsi, rdi
+
+  mov byte r12b, [rsi]
+  and r12b, 0b00010000
+  cmp r12b, 0
+  je .empty
+
+  pop rbx
+  pop rbp
+  ret
+
+  .empty:
+  or byte [rsi], 0b00010000
+
+  .case1:
+  mov r11, rax
+  mov r12, rdx
+
+  sub r11, 1
+  sub r12, 1
+
+  cmp r11, 0
+  jl .case2
+
+  cmp r12, 0
+  jl .case2
+
+  imul r11, 10
+  add r11, r12
+
+  lea rsi, [cells]
+  add rsi, r11
+
+
+  mov byte r12b, [rsi]
+  and r12b, 0b00010111
+
+  or byte [rsi], 0b00010000 ; open the tile
+  cmp r12b, 0
+  jne .case2
+
+  mov rdi, r11
+  and byte [rsi], 0b11101111
+  call zero_collapse ; recursion woo
+
+  .case2:
+  mov r11, rax
+  mov r12, rdx
+
+  sub r11, 1
+
+  cmp r11, 0
+  jl .case3
+
+  imul r11, 10
+  add r11, r12
+
+  lea rsi, [cells]
+  add rsi, r11
+
+
+  mov byte r12b, [rsi]
+  and r12b, 0b00010111
+
+  or byte [rsi], 0b00010000 ; open the tile
+  cmp r12b, 0
+  jne .case3
+
+  mov rdi, r11
+  and byte [rsi], 0b11101111
+  call zero_collapse ; recursion woo
+
+  .case3:
+  mov r11, rax
+  mov r12, rdx
+
+  sub r11, 1
+  add r12, 1
+
+  cmp r11, 0
+  jl .case4
+
+  cmp r12, 10
+  jg .case4
+
+  imul r11, 10
+  add r11, r12
+
+  lea rsi, [cells]
+  add rsi, r11
+
+
+  mov byte r12b, [rsi]
+  and r12b, 0b00010111
+
+  or byte [rsi], 0b00010000 ; open the tile
+  cmp r12b, 0
+  jne .case4
+
+  mov rdi, r11
+  and byte [rsi], 0b11101111
+  call zero_collapse ; recursion woo
+
+  .case4:
+  mov r11, rax
+  mov r12, rdx
+
+  add r12, 1
+
+  cmp r12, 10
+  jg .case5
+
+  imul r11, 10
+  add r11, r12
+
+  lea rsi, [cells]
+  add rsi, r11
+
+
+  mov byte r12b, [rsi]
+  and r12b, 0b00010111
+
+  or byte [rsi], 0b00010000 ; open the tile
+  cmp r12b, 0
+  jne .case5
+
+  mov rdi, r11
+  and byte [rsi], 0b11101111
+  call zero_collapse ; recursion woo
+
+  .case5:
+  mov r11, rax
+  mov r12, rdx
+
+  add r11, 1
+  add r12, 1
+
+  cmp r11, 10
+  jg .case6
+
+  cmp r12, 10
+  jg .case6
+
+  imul r11, 10
+  add r11, r12
+
+  lea rsi, [cells]
+  add rsi, r11
+
+
+  mov byte r12b, [rsi]
+  and r12b, 0b00010111
+
+  or byte [rsi], 0b00010000 ; open the tile
+  cmp r12b, 0
+  jne .case6
+
+  mov rdi, r11
+  and byte [rsi], 0b11101111
+  call zero_collapse ; recursion woo
+
+  .case6:
+  mov r11, rax
+  mov r12, rdx
+
+  add r11, 1
+
+  cmp r11, 10
+  jg .case7
+
+  imul r11, 10
+  add r11, r12
+
+  lea rsi, [cells]
+  add rsi, r11
+
+
+  mov byte r12b, [rsi]
+  and r12b, 0b00010111
+
+  or byte [rsi], 0b00010000 ; open the tile
+  cmp r12b, 0
+  jne .case7
+
+  mov rdi, r11
+  and byte [rsi], 0b11101111
+  call zero_collapse ; recursion woo
+
+  .case7:
+  mov r11, rax
+  mov r12, rdx
+
+  add r11, 1
+  sub r12, 1
+
+  cmp r11, 10
+  jg .case8
+
+  cmp r12, 0
+  jl .case8
+
+  imul r11, 10
+  add r11, r12
+
+  lea rsi, [cells]
+  add rsi, r11
+
+
+  mov byte r12b, [rsi]
+  and r12b, 0b00010111
+
+  or byte [rsi], 0b00010000 ; open the tile
+  cmp r12b, 0
+  jne .case8
+
+  mov rdi, r11
+  and byte [rsi], 0b11101111
+  call zero_collapse ; recursion woo
+
+  .case8:
+  mov r11, rax
+  mov r12, rdx
+
+  sub r12, 1
+
+  cmp r12, 0
+  jl .case9
+
+  imul r11, 10
+  add r11, r12
+
+  lea rsi, [cells]
+  add rsi, r11
+
+
+  mov byte r12b, [rsi]
+  and r12b, 0b00010111
+
+  or byte [rsi], 0b00010000 ; open the tile
+  cmp r12b, 0
+  jne .case9
+
+  mov rdi, r11
+  and byte [rsi], 0b11101111
+  call zero_collapse ; recursion woo
+
+  .case9:
+  ; Code quality? Where we're going we don't need code quality!
+
+ 
+
+  pop rbx
   pop rbp
   ret
 
