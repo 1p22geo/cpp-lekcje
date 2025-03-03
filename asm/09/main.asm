@@ -17,7 +17,7 @@ default rel;
 section .data
   socket_path db "/tmp/.X11-unix/X0", 0x00
   socket_path_len equ $-socket_path
-  xauthority_path db "/run/user/1000/xauth_RlAcgr", 0x00 ; correct path to your need
+  xauthority_path db "/run/user/1000/xauth_QIYbMR", 0x00 ; correct path to your need
   xauthority_path_len equ $-xauthority_path
 
   xauth_method db "MIT-MAGIC-COOKIE-1"
@@ -30,8 +30,14 @@ section .data
   
   socket_fd dq 0
 
+  kaputt db 0
+
   hello_world db "hadziajski minesweeper", 0x00
   hello_world_len equ $-hello_world
+
+  bye_world db "du sind kaputt! click anywhere to restart...", 0x00
+  bye_world_len equ $-bye_world
+
 
 section .bss
   cells resb 100
@@ -54,6 +60,10 @@ _start:
   mov r13d, eax ; graphical context id
 
   call x11_next_id
+  mov r11d, eax ; black font gc id
+  push r11
+
+  call x11_next_id
   mov r14d, eax ; id for the font
 
   mov rdi, [socket_fd]
@@ -64,6 +74,16 @@ _start:
   mov esi, r13d
   mov edx, r12d
   mov ecx, r14d
+  mov r8d, 0x0000ff00
+  call x11_create_gc
+
+  pop r11
+  push r11
+  mov rdi, [socket_fd]
+  mov esi, r11d
+  mov edx, r12d
+  mov ecx, r14d
+  mov r8d, 0x00000000
   call x11_create_gc
 
   call x11_next_id
@@ -84,9 +104,11 @@ _start:
   mov rdi, [socket_fd]
   call set_fd_non_blocking
 
+  pop r11
   mov rdi, [socket_fd]
   mov esi, r15d
   mov edx, r13d
+  mov ecx, r11d
   call poll_messages
 
   pop rbp
@@ -126,12 +148,13 @@ static x11_read_reply:function
 ; @param rdi - x11 socket FD
 ; @param esi - window id
 ; @param edx - graphical context id
+; @param ecx - black font gc id
 poll_messages:
 static poll_messages:function
   push rbp
   mov rbp, rsp
 
-  sub rsp, 32
+  sub rsp, 36
 
   %define POLLIN 0x001
   %define POLLPRI 0x002
@@ -145,6 +168,8 @@ static poll_messages:function
 
   mov dword [rsp + 4*4], esi ; window id
   mov dword [rsp + 5*4], edx ; graphical context id
+
+  mov dword [rsp + 8*4], ecx
 
   .loop:
   ; main loop
@@ -183,6 +208,9 @@ static poll_messages:function
 
   .button_pressed_jump_here:
 
+  cmp byte [kaputt], 0
+  jne .kaputt_bpress
+
   mov word r8w, [rsp+24]
   mov word r9w, [rsp+26]
   ; corrdinates of click
@@ -217,10 +245,50 @@ static poll_messages:function
   lea rbx, [cells]
   add rbx, r9
 
-  ; temporary: set mine wherever clicked
-  or byte [rbx], 0b00001000
+  mov byte r10b, [rsp+1]
+
+  cmp r10b, 0x01
+  je .left_mousebutton
+
+  cmp r10b, 0x03
+  je .right_mousebutton
+
+  .left_mousebutton:
+
+  or byte [rbx], 0b00010000
+
+  mov byte r10b, [rbx]
+  and r10b, 0b00001000
+  cmp r10b, 0
+  jne .kill
+
+  jmp .after_mousebutton
+
+  .kill:
+  ; left clicked on a mine >:3
+  mov byte [kaputt], 1
+
+  jmp .after_mousebutton
+
+  .right_mousebutton:
+
+  or byte [rbx], 0b00100000
+
+  jmp .after_mousebutton
+
+
+  .after_mousebutton:
+
+  jmp .not_bpress
+
+  .kaputt_bpress:
+  ; button pressed on game over screen
 
   push rdi
+
+  call setup_field
+  mov byte [kaputt], 0
+  ; reset
 
   mov rax, 1
   mov rdi, 1
@@ -247,6 +315,31 @@ static poll_messages:function
     or r9d, 100 ; y
     call x11_draw_text
 
+  mov rdi, [rsp + 0*4] ; socket fd
+  lea rsi, [bye_world] 
+  mov edx, bye_world_len
+  mov ecx, [rsp + 16] ; window id
+  mov r8d, [rsp + 20] ; gc id
+  mov r9d, 150 ; x
+  shl r9d, 16
+  or r9d, 150 ; y
+  call x11_draw_text
+
+  mov rdi, [rsp + 0*4] ; socket fd
+  lea rsi, [bye_world] 
+  mov edx, bye_world_len
+  mov ecx, [rsp + 16] ; window id
+  mov r8d, [rsp + 32] ; gc id
+  mov r9d, 150 ; x
+  shl r9d, 16
+  or r9d, 150 ; y
+  call x11_draw_text
+
+
+
+
+
+
   mov r10, 0x0000000000000000
 
   .loop_squares:
@@ -272,6 +365,16 @@ static poll_messages:function
   sub rsp, 1
 
   mov r11b, r8b
+  and r11b, 0b00100000
+  cmp r11b, 0
+  jne .flag
+
+  mov r11b, r8b
+  and r11b, 0b00010000
+  cmp r11b, 0
+  je .closed
+
+  mov r11b, r8b
   and r11b, 0b00001000
   cmp r11b, 0
   jne .mine
@@ -292,6 +395,15 @@ static poll_messages:function
   add r11b, 0x30
   mov byte [rsp], r11b
   jmp .next
+
+  .closed:
+  mov byte [rsp], '='
+  jmp .next
+
+  .flag:
+  mov byte [rsp], '@'
+  jmp .next
+
 
     .next:
     mov rdi, [rsp + 0*4 + 1] ; socket fd
@@ -318,10 +430,24 @@ static poll_messages:function
   cmp r10, 100
   jl .loop_squares
 
+  cmp byte [kaputt], 0
+  je .loop
+
+  mov rdi, [rsp + 0*4] ; socket fd
+  lea rsi, [bye_world] 
+  mov edx, bye_world_len
+  mov ecx, [rsp + 16] ; window id
+  mov r8d, [rsp + 20] ; gc id
+  mov r9d, 150 ; x
+  shl r9d, 16
+  or r9d, 150 ; y
+  call x11_draw_text
+
+
 
   jmp .loop
 
-  add rsp, 32
+  add rsp, 36
   
   pop rbp
   ret
@@ -380,6 +506,12 @@ setup_field:
   push rbx
   mov rbp, rsp
 
+  lea rax, [cells+100]
+  .zero_loop:
+  dec rax
+  mov byte [rax], 0
+  cmp rax, cells
+  jg .zero_loop
 
   mov rcx, 10
 
@@ -822,6 +954,7 @@ static x11_draw_text:function
 ; @param esi graphical context id
 ; @param edx window root id
 ; @param ecx font id
+; @param r8d font color
 x11_create_gc:
 static x11_create_gc:function
   push rbp
@@ -837,13 +970,12 @@ static x11_create_gc:function
   
   %define CREATE_GC_PACKET_FLAG_COUNT 3
   %define CREATE_GC_PACKET_U32_COUNT (4 + CREATE_GC_PACKET_FLAG_COUNT)
-  %define MY_COLOR_RGB 0x0000ff00
  
   mov DWORD [rsp + 0*4], X11_OP_REQ_CREATE_GC | (CREATE_GC_PACKET_U32_COUNT<<16)
   mov DWORD [rsp + 1*4], esi
   mov DWORD [rsp + 2*4], edx
   mov DWORD [rsp + 3*4], CREATE_GC_FLAGS
-  mov DWORD [rsp + 4*4], MY_COLOR_RGB
+  mov DWORD [rsp + 4*4], r8d
   mov DWORD [rsp + 5*4], 0
   mov DWORD [rsp + 6*4], ecx
 
